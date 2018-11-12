@@ -31,8 +31,13 @@ class AlexaRequestController extends Controller
         $certificateResource = openssl_x509_read(file_get_contents($certificateUrl));
         $certificate = openssl_x509_parse($certificateResource);
 
+        $timestampNow = time();
+        if ($timestampNow < $certificate['validFrom_time_t'] || $timestampNow > $certificate['validTo_time_t']) {
+            abert(400);
+        }
+
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate is valid from ' . $certificate['validFrom'] . ' to ' . $certificate['validTo'] . ' (' . $certificate['validFrom_time_t'] . ' - ' . $certificate['validTo_time_t'] . ')'))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate subject ' . $certificate['subject']))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
