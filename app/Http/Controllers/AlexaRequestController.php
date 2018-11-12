@@ -12,6 +12,9 @@ class AlexaRequestController extends Controller
     {
         $alexaRequest = new \App\Alexa\Request\Request($request->getContent(), $request->headers);
 
+        $response = new Response();
+        return $response->withOutputSpeech(new OutputSpeech($request->headers->__toString()))->render();
+
         if ($alexaRequest->isLaunchRequest() || $alexaRequest->isIntentRequest()) {
             $facts = collect([
                 'Chase ist ein Deutscher Schäferhund.',

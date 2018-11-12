@@ -41,8 +41,6 @@ class Request
     {
         /* Verify signature */
 
-        var_dump($headers); exit;
-
         $payload = json_decode($request);
 
         /* Verify application id */
