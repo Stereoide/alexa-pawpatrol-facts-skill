@@ -36,8 +36,12 @@ class AlexaRequestController extends Controller
             abert(400);
         }
 
+        $subjects = [];
+        foreach ($certificate['subject'] as $key => $value) {
+            $subjects[] = $key . ': ' . $value;
+        }
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate subject ' . $certificate['subject']))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate subjects ' . implode(', ', $subjects)))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
