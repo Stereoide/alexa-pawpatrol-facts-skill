@@ -32,6 +32,9 @@ class AlexaRequestController extends Controller
         $certificate = openssl_x509_parse($certificateResource);
 
         $response = new Response();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate is valid from ' . $certificate['validFrom'] . ' to ' . $certificate['validTo'] . ' (' . $certificate['validFrom_time_t'] . ' - ' . $certificate['validTo_time_t'] . ')'))->render();
+
+        $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
 
         if ($alexaRequest->isLaunchRequest() || $alexaRequest->isIntentRequest()) {
