@@ -12,3 +12,6 @@
 */
 
 Route::post('alexa', 'AlexaRequestController@request');
+
+Route::get('privacy-policy', 'AlexaRequestController@privacyPolicy');
+Route::get('terms-of-use', 'AlexaRequestController@termsOfUse');

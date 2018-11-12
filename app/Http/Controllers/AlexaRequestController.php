@@ -133,4 +133,14 @@ class AlexaRequestController extends Controller
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech($facts->random()))->render();
     }
+
+    public function privacyPolicy()
+    {
+        return view('privacy-policy');
+    }
+
+    public function termsOfUse()
+    {
+        return view('terms-of-use');
+    }
 }
