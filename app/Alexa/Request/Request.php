@@ -37,8 +37,12 @@ class Request
 
     public $intent;
 
-    public function __construct(string $request)
+    public function __construct(string $request, $headers)
     {
+        /* Verify signature */
+
+        var_dump($headers); exit;
+
         $payload = json_decode($request);
 
         /* Verify application id */

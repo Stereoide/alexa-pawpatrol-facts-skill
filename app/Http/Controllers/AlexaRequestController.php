@@ -10,7 +10,7 @@ class AlexaRequestController extends Controller
 {
     public function request(Request $request)
     {
-        $alexaRequest = new \App\Alexa\Request\Request($request->getContent());
+        $alexaRequest = new \App\Alexa\Request\Request($request->getContent(), $request->headers);
 
         if ($alexaRequest->isLaunchRequest() || $alexaRequest->isIntentRequest()) {
             $facts = collect([
