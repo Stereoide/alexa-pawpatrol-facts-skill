@@ -12,7 +12,7 @@ class AlexaRequestController extends Controller
     {
         $alexaRequest = new \App\Alexa\Request\Request($request->getContent(), $request->headers);
 
-        /* Verify signature */
+        /* Verify certificate URL */
 
         $certificateUrl = $request->headers->get('SignatureCertChainUrl');
         $certificateUrlParts = parse_url($certificateUrl);
@@ -20,14 +20,18 @@ class AlexaRequestController extends Controller
         if (
             strtolower($certificateUrlParts['scheme']) !== 'https'
             || strtolower($certificateUrlParts['host']) !== 's3.amazonaws.com'
-            || substr(strtolower($certificateUrlParts['path']), 0, 10) !== '/echo.api/'
+            || substr($certificateUrlParts['path'], 0, 10) !== '/echo.api/'
             || (!empty($certificateUrlParts['port']) && $certificateUrlParts['port'] !== 443)
         ) {
             abort(400);
         }
 
+        /* Verify certificate */
+
+        $certificate = openssl_x509_parse(openssl_x509_read(file_get_contents($certificateUrl)));
+
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('certificate url verified'))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate: ' . (string)$certificate))->render();
 
         if ($alexaRequest->isLaunchRequest() || $alexaRequest->isIntentRequest()) {
             $facts = collect([
