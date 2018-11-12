@@ -28,7 +28,12 @@ class AlexaRequestController extends Controller
 
         /* Verify certificate */
 
-        $certificate = openssl_x509_parse(openssl_x509_read(file_get_contents($certificateUrl)));
+        $certificateResource = openssl_x509_read(file_get_contents($certificateUrl));
+
+        $response = new Response();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate resource: ' . $certificateResource))->render();
+
+        $certificate = openssl_x509_parse($certificateResource);
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate: ' . (string)$certificate))->render();
