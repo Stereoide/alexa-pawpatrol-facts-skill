@@ -23,7 +23,7 @@ class AlexaRequestController extends Controller
             || substr($certificateUrlParts['path'], 0, 10) !== '/echo.api/'
             || (!empty($certificateUrlParts['port']) && $certificateUrlParts['port'] !== 443)
         ) {
-            abort(400);
+            abort(400, 'Certificate URL invalid');
         }
 
         /* Verify certificate */
@@ -33,15 +33,19 @@ class AlexaRequestController extends Controller
 
         $timestampNow = time();
         if ($timestampNow < $certificate['validFrom_time_t'] || $timestampNow > $certificate['validTo_time_t']) {
-            abert(400);
+            abert(400, 'Certificate out of validity range');
         }
 
-        $subjects = [];
-        foreach ($certificate['subject'] as $key => $value) {
-            $subjects[] = $key . ': ' . $value;
+        if (!in_array('echo-api.amazon.com', $certificate['subject'])) {
+            abort(400, 'Necessary URL not in subjects');
         }
+
+        $certificatePublicKey = openssl_pkey_get_public($certificateResource);
+        $signature = base64_decode($request->headers->get('Signature'));
+        openssl_public_decrypt($signature, $certificateHash, $certificatePublicKey);
+
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate subjects ' . implode(', ', $subjects)))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate hash ' . $certificateHash))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
