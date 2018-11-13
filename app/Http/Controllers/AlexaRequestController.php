@@ -48,7 +48,7 @@ class AlexaRequestController extends Controller
         $sha1Hash = sha1($requestBody);
 
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate hash is ' . ($certificateHash === $sha1Hash ? ' valid' : ' invalid')))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate hash is ' . strlen($sha1Hash) . ' characters long'))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
