@@ -39,7 +39,37 @@ class Request
 
     public function __construct(string $request, $headers)
     {
-        /* Verify signature */
+        /* Verify certificate URL */
+
+        $certificateUrl = $headers->get('SignatureCertChainUrl');
+        $certificateUrlParts = parse_url($certificateUrl);
+
+        if (
+            strtolower($certificateUrlParts['scheme']) !== 'https'
+            || strtolower($certificateUrlParts['host']) !== 's3.amazonaws.com'
+            || substr($certificateUrlParts['path'], 0, 10) !== '/echo.api/'
+            || (!empty($certificateUrlParts['port']) && $certificateUrlParts['port'] !== 443)
+        ) {
+            abort(400, 'Certificate URL invalid');
+        }
+
+        /* Verify certificate */
+
+        $certificateResource = openssl_x509_read(file_get_contents($certificateUrl));
+        $certificate = openssl_x509_parse($certificateResource);
+
+        $timestampNow = time();
+        if ($timestampNow < $certificate['validFrom_time_t'] || $timestampNow > $certificate['validTo_time_t']) {
+            abert(400, 'Certificate out of validity range');
+        }
+
+        if (!in_array('echo-api.amazon.com', $certificate['subject'])) {
+            abort(400, 'Necessary URL not in subjects');
+        }
+
+        if (openssl_verify($request, base64_decode($headers->get('Signature')), openssl_pkey_get_public($certificateResource),'sha1WithRSAEncryption') != 1) {
+            abort(400, 'Certificate signature invalid');
+        }
 
         $payload = json_decode($request);
 
