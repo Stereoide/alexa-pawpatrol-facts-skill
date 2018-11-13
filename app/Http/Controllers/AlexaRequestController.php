@@ -42,13 +42,8 @@ class AlexaRequestController extends Controller
         }
 
         if (openssl_verify($requestBody, base64_decode($request->headers->get('Signature')), openssl_pkey_get_public($certificateResource),'sha1WithRSAEncryption') != 1) {
-            $response = new Response();
-            return $response->withOutputSpeech(new OutputSpeech('Certificate is invalid'))->render();
             abort(400, 'Certificate signature invalid');
         }
-
-        $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate is valid'))->render();
 
         if ($alexaRequest->isLaunchRequest() || $alexaRequest->isIntentRequest()) {
             $facts = collect([
