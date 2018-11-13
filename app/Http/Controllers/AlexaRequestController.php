@@ -10,7 +10,8 @@ class AlexaRequestController extends Controller
 {
     public function request(Request $request)
     {
-        $alexaRequest = new \App\Alexa\Request\Request($request->getContent(), $request->headers);
+        $requestBody = $request->getContent();
+        $alexaRequest = new \App\Alexa\Request\Request($requestBody, $request->headers);
 
         /* Verify certificate URL */
 
@@ -44,8 +45,10 @@ class AlexaRequestController extends Controller
         $signature = base64_decode($request->headers->get('Signature'));
         openssl_public_decrypt($signature, $certificateHash, $certificatePublicKey);
 
+        $sha1Hash = sha1($requestBody);
+
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate hash is ' . strlen($certificateHash) . ' characters long'))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate hash is ' . ($certificateHash === $sha1Hash ? ' valid' : ' invalid')))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
