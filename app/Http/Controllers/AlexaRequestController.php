@@ -45,7 +45,7 @@ class AlexaRequestController extends Controller
         openssl_public_decrypt($signature, $certificateHash, $certificatePublicKey);
 
         $response = new Response();
-        return $response->withOutputSpeech(new OutputSpeech('Certificate signature: ' . $signature))->render();
+        return $response->withOutputSpeech(new OutputSpeech('Certificate signature is ' . strlen($signature) . ' characters long'))->render();
 
         $response = new Response();
         return $response->withOutputSpeech(new OutputSpeech('Certificate keys: ' . implode(', ', array_keys($certificate))))->render();
